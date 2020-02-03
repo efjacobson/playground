@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+
+Description: Playground CodePipeline Stack
+
+Resources:
+  BUCKETIDREPLACETOKEN:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://BUCKETIDREPLACETOKEN.s3-us-west-2.amazonaws.com/codepipeline.yaml'

@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+
+Description: Playground CodePipeline Stack
+
+Resources:
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - s3.amazonaws.com
+            Action:
+              - sts:AssumeRole
