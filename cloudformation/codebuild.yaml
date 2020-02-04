@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+
+Description: Playground CodePipeline Stack
+
+Resources:
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${AWS::StackName}-build'
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: 'aws/codebuild/eb-nodejs-6.10.0-amazonlinux-64:4.0.0-1.0.0'
+        Type: LINUX_CONTAINER
+        PrivilegedMode: true
+      ServiceRole: !GetAtt 'CodeBuildRole.Arn'
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - chmod +x ./provisioning/codebuild/*.sh
+            build:
+              commands:
+                - ./provisioning/codebuild/build.sh
+          artifacts:
+            base-directory: dist
+            files: ['**/*']
+      TimeoutInMinutes: 10
+
+Outputs:
+  BuildProject:
+    Value: !Ref 'BuildProject'

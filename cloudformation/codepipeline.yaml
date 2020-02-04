@@ -3,6 +3,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Description: Playground CodePipeline Stack
 
+Parameters:
+  CodeBuildProject:
+    Type: String
+
 Resources:
   CodePipelineRole:
     Type: AWS::IAM::Role
@@ -16,3 +20,39 @@ Resources:
                 - codepipeline.amazonaws.com
             Action:
               - sts:AssumeRole
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Ref 'AWS::StackName'
+      RoleArn: !GetAtt 'CodePipelineRole.Arn'
+      ArtifactStore:
+        Type: S3
+        Location: 'BUCKETIDREPLACETOKEN'
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: S3
+                Version: '1'
+              Configuration:
+                S3Bucket: 'BUCKETIDREPLACETOKEN'
+                S3ObjectKey: tmz-pbjx/latest/artifact.zip
+              OutputArtifacts:
+                - Name: Build
+        - Name: Dev
+          Actions:
+            - Name: DeployDev
+              InputArtifacts:
+                - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref 'CodeBuildProject'
+              RunOrder: 1
