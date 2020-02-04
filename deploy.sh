@@ -1,12 +1,19 @@
 #! /bin/bash
 
+DATE=$(date +%s)
+
 if [ -z "$1" ]; then
-  echo "gotta enter a name bro"
-  exit 1
+  STACKNAME='coolstack'
+else
+  STACKNAME=$1
 fi
 
-BUCKET_ID="$1playgroundbucket$(date +%s)"
+echo "${STACKNAME}" >> logs/stacks.txt
+
+BUCKET_ID="${STACKNAME}playgroundbucket${DATE}"
 BUCKET="s3://${BUCKET_ID}"
+
+echo "${BUCKET_ID}" >> logs/buckets.txt
 
 aws s3 mb $BUCKET \
   --profile playground
@@ -19,7 +26,7 @@ aws s3 sync cloudformation/. $BUCKET \
 
 aws cloudformation deploy \
   --profile playground \
-  --stack-name "$1" \
+  --stack-name "${STACKNAME}" \
   --template-file cloudformation/infra.yaml \
   --capabilities CAPABILITY_IAM
 
