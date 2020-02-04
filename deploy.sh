@@ -18,11 +18,16 @@ echo "${BUCKET_ID}" >> logs/buckets.txt
 aws s3 mb $BUCKET \
   --profile playground
 
-sed -i'.original' -e "s/BUCKETIDREPLACETOKEN/${BUCKET_ID}/g" cloudformation/infra.yaml
+mkdir temp
+ls cloudformation >> temp/templateList.txt
+
+cat temp/templateList.txt | xargs -I % sed -i'.original' -e "s/BUCKETIDREPLACETOKEN/${BUCKET_ID}/g" cloudformation/%
 
 aws s3 sync cloudformation/. $BUCKET \
   --profile playground \
-  --delete
+  --delete \
+  --exclude "*" \
+  --include "*.yaml"
 
 aws cloudformation deploy \
   --profile playground \
@@ -30,5 +35,6 @@ aws cloudformation deploy \
   --template-file cloudformation/infra.yaml \
   --capabilities CAPABILITY_IAM
 
-rm cloudformation/infra.yaml
-mv cloudformation/infra.yaml.original cloudformation/infra.yaml
+cat temp/templateList.txt | xargs -I % rm cloudformation/%
+cat temp/templateList.txt | xargs -I % mv cloudformation/%.original cloudformation/%
+rm -rf temp

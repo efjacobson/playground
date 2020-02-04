@@ -13,6 +13,6 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - s3.amazonaws.com
+                - codepipeline.amazonaws.com
             Action:
               - sts:AssumeRole
